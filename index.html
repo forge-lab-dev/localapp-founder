@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Startup Hours & Sweat Equity Tracker</title>
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<div id="login-modal">
+  <div class="modal-card">
+    <div class="logo-container" style="margin-bottom:16px;">
+      <div class="logo-icon">FT</div>
+      <h2>Login</h2>
+    </div>
+    <div style="margin-bottom:12px">
+      <label for="loginRole">Role</label>
+      <select id="loginRole">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div style="margin-bottom:16px">
+      <label for="loginPass">Password</label>
+      <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password">
+      <div id="loginErr" class="error-msg">Invalid credentials.</div>
+    </div>
+    <button id="loginButton" style="width:100%">Log In</button>
+  </div>
+</div>
+
+<header>
+  <div class="logo-container">
+    <div class="logo-icon">FT</div>
+    <div>
+      <h1>Startup Hours &amp; Sweat Equity Tracker</h1>
+      <p id="subhead">Track founder time, classify for R&amp;D / sweat equity, and export defensible records for your CPA.</p>
+    </div>
+  </div>
+  <div class="auth-controls">
+    <span class="user-badge" id="roleDisplay">Logged Out</span>
+    <button class="ghost" id="logoutButton" style="padding:6px 12px;font-size:12px;">Logout</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab active" data-tab="dash">Dashboard</button>
+    <button class="tab" data-tab="add">Add / Edit Entry</button>
+    <button class="tab" data-tab="entries">Entries</button>
+    <button class="tab" data-tab="settings">Settings &amp; Export</button>
+  </div>
+
+  <div id="t-dash" class="tabc">
+    <div class="panel"><div class="grid g4" id="stats"></div></div>
+    <div class="panel"><h3 style="margin:0 0 12px;font-size:15px">Hours by Month</h3><div id="byMonth"></div></div>
+    <div class="panel"><h3 style="margin:0 0 12px;font-size:15px">Hours by Project</h3><div id="byProject"></div></div>
+  </div>
+
+  <div id="t-add" class="tabc hide">
+    <div class="panel">
+      <h3 style="margin:0 0 14px;font-size:15px" id="formTitle">Add Time Entry</h3>
+      <input type="hidden" id="editId">
+      <div class="grid g3">
+        <div><label for="date">Date</label><input type="date" id="date"></div>
+        <div><label for="start">Start Time</label><input type="time" id="start"></div>
+        <div><label for="end">End Time</label><input type="time" id="end"></div>
+      </div>
+      <div class="grid g3" style="margin-top:14px">
+        <div>
+          <label for="hours">Hours (auto or override, Min: 0)</label>
+          <input type="number" step="0.25" min="0" id="hours">
+          <div id="hoursErr" class="error-msg">Hours must be a finite number at or above 0.</div>
+        </div>
+        <div>
+          <label for="project">Project</label>
+          <input type="text" id="project" list="projList" placeholder="e.g. MVP, Infra, Fundraising">
+          <datalist id="projList"></datalist>
+        </div>
+        <div><label for="task">Task / Feature</label><input type="text" id="task" placeholder="e.g. Auth module, Pitch deck"></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div>
+          <label for="category">Activity Category</label>
+          <select id="category">
+            <option>Engineering / Development</option>
+            <option>Design</option>
+            <option>Research &amp; Experimentation</option>
+            <option>Product / Strategy</option>
+            <option>Marketing / Growth</option>
+            <option>Ops / Admin / Legal</option>
+            <option>Fundraising / Investor Relations</option>
+            <option>Customer / Sales</option>
+          </select>
+        </div>
+        <div>
+          <label for="classification">Classification (purpose)</label>
+          <select id="classification">
+            <option value="sweat">Sweat Equity (unpaid founder time)</option>
+            <option value="bill">Billable (invoiced/contracted)</option>
+            <option value="internal">Internal (overhead, not equity)</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid g3" style="margin-top:14px">
+        <div>
+          <label for="rate">Rate ($/hr, Max: $500)</label>
+          <input type="number" step="1" min="0" max="500" id="rate">
+          <div id="rateErr" class="error-msg">Rate must be between $0 and $500/hr and finite.</div>
+        </div>
+        <div>
+          <label for="rateBasis">Rate Basis</label>
+          <select id="rateBasis">
+            <option>Market replacement rate</option>
+            <option>Personal W-2 rate (sanity check)</option>
+            <option>Contractor / 1099 rate</option>
+            <option>Agreed equity-value rate</option>
+          </select>
+        </div>
+        <div><label for="value">Computed Value</label><input type="text" id="value" readonly style="font-weight:700;color:var(--green)"></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div>
+          <label for="rd">R&amp;D Credit Qualified?</label>
+          <select id="rd">
+            <option value="no">No</option>
+            <option value="yes">Yes — qualified research activity</option>
+            <option value="maybe">Maybe — needs CPA review</option>
+          </select>
+          <div class="hint">Only W-2 wages for qualified activities count for the §41 credit. Tracking unpaid time does NOT create a credit by itself.</div>
+        </div>
+        <div>
+          <label for="status">Payment Status</label>
+          <select id="status">
+            <option>Unpaid</option>
+            <option>Invoiced</option>
+            <option>Paid (W-2)</option>
+            <option>Paid (1099)</option>
+            <option>Converted to equity</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div>
+          <label for="confidence">Backfill Confidence</label>
+          <select id="confidence">
+            <option>High — from contemporaneous log</option>
+            <option>Medium — from calendar/commits</option>
+            <option>Low — reconstructed estimate</option>
+          </select>
+        </div>
+        <div><label for="evidence">Deliverable / Evidence link</label><input type="text" id="evidence" placeholder="GitHub commit, doc URL, etc."></div>
+      </div>
+      <div style="margin-top:14px">
+        <label for="notes">Technical Uncertainty / Experimentation Notes (supports R&amp;D)</label>
+        <textarea id="notes" placeholder="What technical uncertainty were you resolving? What alternatives did you test?"></textarea>
+      </div>
+      <div class="row" style="margin-top:18px">
+        <button id="saveEntryButton">Save Entry</button>
+        <button class="ghost" id="clearFormButton">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="t-entries" class="tabc hide">
+    <div class="tools">
+      <button id="exportCsvButton">Export CSV</button>
+      <label class="ghost" style="display:inline-flex;align-items:center;padding:10px 16px;border-radius:8px;cursor:pointer;border:1px solid var(--border);font-size:14px;font-weight:700">
+        Import CSV
+        <input type="file" id="csvFile" accept=".csv" style="display:none">
+      </label>
+      <button class="danger admin-only" id="clearAllButton">Delete All</button>
+    </div>
+    <div class="panel" style="padding:6px;overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Project</th><th>Task</th><th>Category</th><th>Hrs</th><th>Class</th><th>R&amp;D</th><th>Value</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="t-settings" class="tabc hide">
+    <div class="panel">
+      <div class="grid g2">
+        <div><label for="setName">Startup Name</label><input type="text" id="setName"></div>
+        <div><label for="setFounder">Founder / Your Name</label><input type="text" id="setFounder"></div>
+        <div><label for="setDefaultRate">Default Market Rate ($/hr, Max $500)</label><input type="number" id="setDefaultRate" min="0" max="500"></div>
+        <div><label for="setStartDate">Tracking Start Date</label><input type="date" id="setStartDate"></div>
+      </div>
+      <div class="row" style="margin-top:16px"><button id="saveSettingsButton">Save Settings</button></div>
+    </div>
+    <div class="panel admin-only">
+      <h3 style="margin:0 0 10px;font-size:15px">Quick Backfill (Admin Only)</h3>
+      <div class="hint" style="margin-bottom:12px">Add many entries fast: paste lines as <code>Date | Project | Hours | Category</code>.</div>
+      <textarea id="bulk" rows="6" placeholder="2026-03-04 | MVP | 6.5 | Engineering / Development"></textarea>
+      <div class="row" style="margin-top:12px"><button id="bulkAddButton">Add Lines</button></div>
+    </div>
+    <div class="disclaimer"><strong>Not tax or legal advice.</strong> This tracker organizes records for your CPA; it does not create deductions, basis, or credits on its own.</div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="/static/app.js" defer></script>
+</body>
+</html>
