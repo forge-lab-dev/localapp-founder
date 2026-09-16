@@ -32,7 +32,7 @@ app.config.update(
     MAX_CONTENT_LENGTH=1 * 1024 * 1024,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=False,  # localhost / 127.0.0.1 is HTTP in this setup
+    SESSION_COOKIE_SECURE=False,  # localhost / 0.0.0.0 is HTTP in this setup
 )
 
 DEFAULT_DB = {
@@ -504,4 +504,4 @@ def set_settings():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8000, debug=False)
+    app.run(host="0.0.0.0", port=8000, debug=False)
